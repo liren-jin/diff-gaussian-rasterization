@@ -273,7 +273,8 @@ renderCUDA(
 	uint32_t* __restrict__ n_contrib,
 	const float* __restrict__ bg_color,
 	float* __restrict__ out_color,
-	float* __restrict__ out_depth)
+	float* __restrict__ out_depth,
+    float* __restrict__ importance_score)
 {
 	// Identify current tile and associated min/max pixel range.
 	auto block = cg::this_thread_block();
@@ -353,11 +354,16 @@ renderCUDA(
 				done = true;
 				continue;
 			}
-
 			// Eq. (3) from 3D Gaussian splatting paper.
+            float weight = alpha * T;
+
 			for (int ch = 0; ch < CHANNELS; ch++)
-				C[ch] += features[collected_id[j] * CHANNELS + ch] * alpha * T;
-			D += depths[collected_id[j]] * alpha * T;
+				C[ch] += features[collected_id[j] * CHANNELS + ch] * weight;
+			D += depths[collected_id[j]] * weight;
+
+            // maximum weight over all rays as the importance score
+            if (weight > importance_score[collected_id[j]])
+                importance_score[collected_id[j]] = weight;
 
 			T = test_T;
 
@@ -392,7 +398,9 @@ void FORWARD::render(
 	uint32_t* n_contrib,
 	const float* bg_color,
 	float* out_color,
-	float* out_depth)
+	float* out_depth,
+    float* importance_score)
+
 {
 	renderCUDA<NUM_CHANNELS> << <grid, block >> > (
 		ranges,
@@ -406,7 +414,8 @@ void FORWARD::render(
 		n_contrib,
 		bg_color,
 		out_color,
-		out_depth);
+		out_depth
+        importance_score);
 }
 
 void FORWARD::preprocess(int P, int D, int M,

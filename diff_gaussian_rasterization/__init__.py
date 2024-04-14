@@ -95,6 +95,7 @@ class _RasterizeGaussians(torch.autograd.Function):
                     num_rendered,
                     color,
                     depth,
+                    importance_score,
                     radii,
                     geomBuffer,
                     binningBuffer,
@@ -107,9 +108,16 @@ class _RasterizeGaussians(torch.autograd.Function):
                 )
                 raise ex
         else:
-            num_rendered, color, depth, radii, geomBuffer, binningBuffer, imgBuffer = (
-                _C.rasterize_gaussians(*args)
-            )
+            (
+                num_rendered,
+                color,
+                depth,
+                importance_score,
+                radii,
+                geomBuffer,
+                binningBuffer,
+                imgBuffer,
+            ) = _C.rasterize_gaussians(*args)
 
         # Keep relevant tensors for backward
         ctx.raster_settings = raster_settings
@@ -126,10 +134,12 @@ class _RasterizeGaussians(torch.autograd.Function):
             binningBuffer,
             imgBuffer,
         )
-        return color, radii, depth
+        return color, depth, importance_score, radii
 
     @staticmethod
-    def backward(ctx, grad_out_color, grad_radii, grad_depth):
+    def backward(
+        ctx, grad_out_color, grad_out_depth, grad_out_importance_score, grad_out_radii
+    ):
 
         # Restore necessary values from context
         num_rendered = ctx.num_rendered
@@ -162,7 +172,7 @@ class _RasterizeGaussians(torch.autograd.Function):
             raster_settings.tanfovx,
             raster_settings.tanfovy,
             grad_out_color,
-            grad_depth,
+            grad_out_depth,
             sh,
             raster_settings.sh_degree,
             raster_settings.campos,
