@@ -1,3 +1,8 @@
+# Modifications
+- use spherical harmonics match e3nn as used in [MVSplat](https://github.com/donydchen/mvsplat).
+- add depth rendering implemented in [depth-diff-gaussian-rasterization](https://github.com/ingra14m/depth-diff-gaussian-rasterization)
+- add importance score for each 3D gaussian based on its contribution to rendering.
+- 
 # Differential Gaussian Rasterization
 
 Used as the rasterization engine for the paper "3D Gaussian Splatting for Real-Time Rendering of Radiance Fields". If you can make use of it in your own research, please be so kind to cite us.
