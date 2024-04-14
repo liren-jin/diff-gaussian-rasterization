@@ -414,7 +414,7 @@ void FORWARD::render(
 		n_contrib,
 		bg_color,
 		out_color,
-		out_depth
+		out_depth,
         importance_score);
 }
 
