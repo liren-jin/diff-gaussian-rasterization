@@ -217,6 +217,7 @@ int CudaRasterizer::Rasterizer::forward(
 	const bool prefiltered,
 	float* out_color,
 	float* out_depth,
+	float* out_opacity,
     float* importance_score,
 	int* radii,
 	bool debug)
@@ -335,6 +336,7 @@ int CudaRasterizer::Rasterizer::forward(
 		background,
 		out_color,
 		out_depth,
+        out_opacity,
         importance_score), debug)
 
 	return num_rendered;
