@@ -63,7 +63,8 @@ namespace FORWARD
 		float* out_color,
 		float* out_depth,
 		float* out_opacity,
-        float* importance_score);
+        float* importance_score,
+        int* n_touched);
 
 }
 

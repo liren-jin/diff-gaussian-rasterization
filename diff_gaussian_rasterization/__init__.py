@@ -98,6 +98,7 @@ class _RasterizeGaussians(torch.autograd.Function):
                     opacity,
                     importance_score,
                     radii,
+                    n_touched,
                     geomBuffer,
                     binningBuffer,
                     imgBuffer,
@@ -116,6 +117,7 @@ class _RasterizeGaussians(torch.autograd.Function):
                 opacity,
                 importance_score,
                 radii,
+                n_touched,
                 geomBuffer,
                 binningBuffer,
                 imgBuffer,
@@ -136,7 +138,7 @@ class _RasterizeGaussians(torch.autograd.Function):
             binningBuffer,
             imgBuffer,
         )
-        return color, depth, opacity, importance_score, radii
+        return color, depth, opacity, importance_score, radii, n_touched
 
     @staticmethod
     def backward(
@@ -146,6 +148,7 @@ class _RasterizeGaussians(torch.autograd.Function):
         grad_out_opacity,
         grad_out_importance_score,
         grad_out_radii,
+        grad_out_n_touched,
     ):
 
         # Restore necessary values from context

@@ -3,6 +3,7 @@
 - add depth rendering implemented in [depth-diff-gaussian-rasterization](https://github.com/ingra14m/depth-diff-gaussian-rasterization).
 - add importance score for each 3D gaussian based on its contribution to rendering.
 - add opacity rendering in forward pass.
+- add n_touched to count the number of pixels each Gaussian contributes to
   
 # Differential Gaussian Rasterization
 

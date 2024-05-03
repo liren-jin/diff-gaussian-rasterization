@@ -275,7 +275,8 @@ renderCUDA(
 	float* __restrict__ out_color,
 	float* __restrict__ out_depth,
 	float* __restrict__ out_opacity,
-    float* __restrict__ importance_score)
+    float* __restrict__ importance_score,
+    int* __restrict__ n_touched)
 {
 	// Identify current tile and associated min/max pixel range.
 	auto block = cg::this_thread_block();
@@ -366,6 +367,11 @@ renderCUDA(
             if (weight > importance_score[collected_id[j]])
                 importance_score[collected_id[j]] = weight;
 
+			// Keep track of how many pixels touched this Gaussian.
+			if (test_T > 0.5f) {
+				atomicAdd(&(n_touched[collected_id[j]]), 1);
+			}
+
 			T = test_T;
 
 			// Keep track of last range entry to update this
@@ -402,7 +408,8 @@ void FORWARD::render(
 	float* out_color,
 	float* out_depth,
 	float* out_opacity,
-    float* importance_score)
+    float* importance_score,
+    int* n_touched)
 
 {
 	renderCUDA<NUM_CHANNELS> << <grid, block >> > (
@@ -419,7 +426,8 @@ void FORWARD::render(
 		out_color,
 		out_depth,
         out_opacity,
-        importance_score);
+        importance_score,
+        n_touched);
 }
 
 void FORWARD::preprocess(int P, int D, int M,
