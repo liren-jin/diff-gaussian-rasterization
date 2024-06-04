@@ -54,6 +54,7 @@ namespace FORWARD
 		const uint32_t* point_list,
 		int W, int H,
 		const float2* points_xy_image,
+		const float* variance,
 		const float* features,
 		const float* depths,
 		const float4* conic_opacity,
@@ -63,6 +64,7 @@ namespace FORWARD
 		float* out_color,
 		float* out_depth,
 		float* out_opacity,
+		float* out_uncertainty,
         float* importance_score,
         int* n_touched);
 
