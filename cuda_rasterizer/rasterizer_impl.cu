@@ -209,6 +209,7 @@ int CudaRasterizer::Rasterizer::forward(
 	const float* scales,
 	const float scale_modifier,
 	const float* rotations,
+	const float* variances,
 	const float* cov3D_precomp,
 	const float* viewmatrix,
 	const float* projmatrix,
@@ -218,6 +219,7 @@ int CudaRasterizer::Rasterizer::forward(
 	float* out_color,
 	float* out_depth,
 	float* out_opacity,
+	float* out_uncertainty,
     float* importance_score,
 	int* radii,
 	int* n_touched,
@@ -329,6 +331,7 @@ int CudaRasterizer::Rasterizer::forward(
 		binningState.point_list,
 		width, height,
 		geomState.means2D,
+        variances,
 		feature_ptr,
 		geomState.depths,
 		geomState.conic_opacity,
@@ -338,6 +341,7 @@ int CudaRasterizer::Rasterizer::forward(
 		out_color,
 		out_depth,
         out_opacity,
+        out_uncertainty,
         importance_score,
         n_touched), debug)
 
@@ -351,6 +355,7 @@ void CudaRasterizer::Rasterizer::backward(
 	const float* background,
 	const int width, int height,
 	const float* means3D,
+	const float* variances,
 	const float* shs,
 	const float* colors_precomp,
 	const float* scales,
@@ -366,7 +371,8 @@ void CudaRasterizer::Rasterizer::backward(
 	char* binning_buffer,
 	char* img_buffer,
 	const float* dL_dpix,
-	const float* dL_depths,
+	const float* dL_dpix_depth,
+	const float* dL_dpix_uncertainty,
 	float* dL_dmean2D,
 	float* dL_dconic,
 	float* dL_dopacity,
@@ -376,6 +382,7 @@ void CudaRasterizer::Rasterizer::backward(
 	float* dL_dsh,
 	float* dL_dscale,
 	float* dL_drot,
+	float* dL_dvariance,
 	bool debug)
 {
 	GeometryState geomState = GeometryState::fromChunk(geom_buffer, P);
@@ -412,11 +419,13 @@ void CudaRasterizer::Rasterizer::backward(
 		imgState.accum_alpha,
 		imgState.n_contrib,
 		dL_dpix,
-		dL_depths,
+		dL_dpix_depth,
+		dL_dpix_uncertainty,
 		(float3*)dL_dmean2D,
 		(float4*)dL_dconic,
 		dL_dopacity,
-		dL_dcolor), debug)
+		dL_dcolor,
+        dL_dvariance), debug)
 
 	// Take care of the rest of preprocessing. Was the precomputed covariance
 	// given to us or a scales/rot pair? If precomputed, pass that. If not,

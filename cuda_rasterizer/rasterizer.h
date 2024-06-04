@@ -42,6 +42,7 @@ namespace CudaRasterizer
 			const float* scales,
 			const float scale_modifier,
 			const float* rotations,
+			const float* variances,
 			const float* cov3D_precomp,
 			const float* viewmatrix,
 			const float* projmatrix,
@@ -51,6 +52,7 @@ namespace CudaRasterizer
 			float* out_color,
 			float* out_depth,
 			float* out_opacity,
+			float* out_uncertainty,
             float* importance_score,
 			int* radii = nullptr,
 			int* n_touched = nullptr,
@@ -61,6 +63,7 @@ namespace CudaRasterizer
 			const float* background,
 			const int width, int height,
 			const float* means3D,
+			const float* variances,
 			const float* shs,
 			const float* colors_precomp,
 			const float* scales,
@@ -76,7 +79,8 @@ namespace CudaRasterizer
 			char* binning_buffer,
 			char* image_buffer,
 			const float* dL_dpix,
-			const float* dL_depths,
+			const float* dL_dpix_depth,
+			const float* dL_dpix_uncertainty,
 			float* dL_dmean2D,
 			float* dL_dconic,
 			float* dL_dopacity,
@@ -86,6 +90,7 @@ namespace CudaRasterizer
 			float* dL_dsh,
 			float* dL_dscale,
 			float* dL_drot,
+			float* dL_dvariance,
 			bool debug);
 	};
 };
