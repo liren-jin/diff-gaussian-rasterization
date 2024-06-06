@@ -377,6 +377,7 @@ void CudaRasterizer::Rasterizer::backward(
 	float* dL_dconic,
 	float* dL_dopacity,
 	float* dL_dcolor,
+	float* dL_ddepth,
 	float* dL_dmean3D,
 	float* dL_dcov3D,
 	float* dL_dsh,
@@ -412,6 +413,7 @@ void CudaRasterizer::Rasterizer::backward(
 		binningState.point_list,
 		width, height,
 		background,
+        variances,
 		geomState.means2D,
 		geomState.conic_opacity,
 		color_ptr,
@@ -425,6 +427,7 @@ void CudaRasterizer::Rasterizer::backward(
 		(float4*)dL_dconic,
 		dL_dopacity,
 		dL_dcolor,
+        dL_ddepth,
         dL_dvariance), debug)
 
 	// Take care of the rest of preprocessing. Was the precomputed covariance
@@ -449,6 +452,7 @@ void CudaRasterizer::Rasterizer::backward(
 		dL_dconic,
 		(glm::vec3*)dL_dmean3D,
 		dL_dcolor,
+        dL_ddepth,
 		dL_dcov3D,
 		dL_dsh,
 		(glm::vec3*)dL_dscale,
