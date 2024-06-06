@@ -472,10 +472,12 @@ renderCUDA(
 	const int last_contributor = inside ? n_contrib[pix_id] : 0;
 
 	float accum_rec[C] = { 0 };
+	float accum_depth_rec = 0;
+
 	float dL_dpixel[C];
 	float dL_dpixel_depth;
 	float dL_dpixel_uncertainty;
-	float accum_depth_rec = 0;
+
 	if (inside){
 		for (int i = 0; i < C; i++)
 			dL_dpixel[i] = dL_dpixels[i * H * W + pix_id];
