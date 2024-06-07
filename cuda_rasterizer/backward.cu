@@ -434,8 +434,7 @@ renderCUDA(
 	float* __restrict__ dL_dopacity,
 	float* __restrict__ dL_dcolor,
 	float* __restrict__ dL_ddepth,
-	float* __restrict__ dL_dvariance,
-    )
+	float* __restrict__ dL_dvariance)
 {
 	// We rasterize again. Compute necessary block info.
 	auto block = cg::this_thread_block();
@@ -480,10 +479,10 @@ renderCUDA(
 
 	if (inside){
 		for (int i = 0; i < C; i++)
-			dL_dpixel[i] = dL_dpixels[i * H * W + pix_id];
+			dL_dpixel[i] = dL_dpixs[i * H * W + pix_id];
 	    // dL_depth = dL_depths[pix_id];
-        float dL_dpixel_depth = dL_dpix_depths[pix_id];
-	    float dL_dpixel_uncertainty = dL_dpix_uncertainties[pix_id];
+        dL_dpixel_depth = dL_dpix_depths[pix_id];
+	    dL_dpixel_uncertainty = dL_dpix_uncertainties[pix_id];
 	}
 
 	float last_alpha = 0;
@@ -559,13 +558,13 @@ renderCUDA(
 				// Update the gradients w.r.t. color of the Gaussian. 
 				// Atomic, since this pixel is just one of potentially
 				// many that were affected by this Gaussian.
-				atomicAdd(&(dL_dcolors[global_id * C + ch]), dchannel_dcolor * dL_dchannel);
+				atomicAdd(&(dL_dcolor[global_id * C + ch]), dchannel_dcolor * dL_dchannel);
 			}
 			const float c_d = collected_depths[j];
 			accum_depth_rec = last_alpha * last_depth + (1.f - last_alpha) * accum_depth_rec;
 			last_depth = c_d;
 			dL_dalpha += (c_d - accum_depth_rec) * dL_dpixel_depth;
-            atomicAdd(&(dL_ddepths[global_id]), dpixel_depth_ddepth * dL_dpixel_depth);
+            atomicAdd(&(dL_ddepth[global_id]), dpixel_depth_ddepth * dL_dpixel_depth);
 			dL_dalpha *= T;
 			// Update last alpha (to be used in the next iteration)
 			last_alpha = alpha;
@@ -675,6 +674,7 @@ void BACKWARD::render(
 	const uint32_t* point_list,
 	int W, int H,
 	const float* bg_color,
+	const float* variance,
 	const float2* means2D,
 	const float4* conic_opacity,
 	const float* colors,
@@ -696,6 +696,7 @@ void BACKWARD::render(
 		point_list,
 		W, H,
 		bg_color,
+        variance,
 		means2D,
 		conic_opacity,
 		colors,
